@@ -1,0 +1,422 @@
+//goooooooddddd 2
+#include   <dht.h> 
+#include   <LiquidCrystal_I2C.h>
+#include <Wire.h> 
+dht DHT;
+int i;
+float dt=0;
+//#define Ag 4
+#define r1 12
+#define r2 10
+#define f1 3
+#define f2 9
+#define f3 13
+#define f4 5
+float m = -0.6527; 
+float b = 1.30;  
+float R0 = 21.91;
+//Constants
+#define   DHT22_PIN 6
+#define   DHT11_PIN 7// DHT 22  (AM2302) - pin used for DHT22 
+LiquidCrystal_I2C lcd(0x27,16,2);   
+
+//Variables
+float hum1;  //humidity value
+float temp1; //temperature value
+float hum2;  //humidity value
+float temp2;
+const int mq2 = A0;//fffffffff
+const int mq4 = A1; //fffffffffff 
+const int  mq5 = A2; 
+const int mq135 = A3;
+void setup()
+{
+  //pinMode(Ag,  OUTPUT);
+  pinMode(r2,  OUTPUT);
+  pinMode(r1,  OUTPUT);
+  //pinMode(r4,  OUTPUT);
+  pinMode(f1,  OUTPUT);
+  pinMode(f2,  OUTPUT);
+  pinMode(f3,  OUTPUT);
+  pinMode(f4,  OUTPUT);
+    pinMode(mq4,  INPUT); 
+  pinMode(mq135, INPUT); 
+  pinMode(mq5, INPUT); 
+  pinMode(mq2,  INPUT); 
+     Serial.begin(9600);
+    lcd.init();                      // int lcd 
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setBacklight(HIGH);
+  //digitalWrite(Ag, LOW);
+  lcd.clear();
+  i=0;
+  
+  lcd.setCursor(0,0);
+  lcd.print("   ECO VENTIS   ");
+  delay(2000);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("    TEST I/O   ");
+
+  lcd.setCursor(0,1);
+  lcd.print("     RELAY1   ");
+  digitalWrite(r1, HIGH);
+  delay(2000);
+  digitalWrite(r1, LOW);
+  //delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("     RELAY2   ");
+  digitalWrite(r2, HIGH);
+  delay(2000);
+  digitalWrite(r2, LOW);
+  //delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("      FAN1   ");
+  digitalWrite(f1, HIGH);
+  delay(2000);
+  digitalWrite(f1, LOW);
+  //elay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("      FAN2    ");
+  digitalWrite(f2, HIGH);
+  delay(2000);
+  digitalWrite(f2, LOW);
+  //delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("      FAN3   ");
+  digitalWrite(f3, HIGH);
+  delay(2000);
+  digitalWrite(f3, LOW);
+  //delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("      FAN4   ");
+  digitalWrite(f4, HIGH);
+  delay(2000);
+  digitalWrite(f4, LOW);
+  lcd.setCursor(0,1);
+  lcd.print("     Hmmm..   ");
+  delay(2000);
+  lcd.clear();
+  delay(2000);
+  
+}
+
+void   loop()
+{
+  //digitalWrite(Ag, HIGH);
+  double mq4_value = analogToPPM(analogRead(mq4));
+  double  mq135_value = analogToPPM(analogRead(mq135));
+  double mq5_value = analogToPPM(analogRead(mq5));
+  double mq2_value = analogToPPM(analogRead(mq2));
+    int chk = DHT.read22(DHT22_PIN);
+    
+    hum1 = DHT.humidity;
+    temp1= DHT.temperature;
+    chk = DHT.read22(DHT11_PIN);
+    hum2 = DHT.humidity;
+    temp2= DHT.temperature;
+     
+     //int chk = DHT.read22(DHT11_PIN);
+     if(i<=25){
+      //digitalWrite(Ag, HIGH);
+     lcd.setCursor(0,0);
+    lcd.print("H:");
+    lcd.setCursor(2,0);
+    lcd.print(hum1);
+    lcd.setCursor(6,0);
+    lcd.print("%");
+     lcd.setCursor(6,1);
+    lcd.println("c Gas:     ");
+    lcd.setCursor(12,1);
+    lcd.println(mq4_value);
+    lcd.setCursor(0,1);
+     lcd.print("T: "); 
+     lcd.setCursor(2,1);
+    lcd.print(temp1);
+     lcd.setCursor(6,1);
+    lcd.println("c Gas:     ");
+    lcd.setCursor(12,1);
+    lcd.println(mq4_value);
+    //lcd.setCursor(15,1);
+    //lcd.println("c");
+    lcd.setCursor(8,0);
+    lcd.println("Gas:");
+    lcd.setCursor(12,0);
+    lcd.println((mq2_value)*3);
+    lcd.setCursor(6,1);
+    lcd.println("c Gas:    ");
+    lcd.setCursor(12,1);
+    lcd.println(mq4_value);
+     }
+     if(i>25){
+      //digitalWrite(Ag, LOW);
+     lcd.setCursor(0,0);
+    lcd.print("OUTSIDE: GAS:");
+    //lcd.setCursor(12,0);
+    lcd.println((mq2_value)*3);
+    lcd.setCursor(0,1);
+     lcd.print("T: "); 
+     lcd.setCursor(2,1);
+    lcd.print(temp2);
+    lcd.setCursor(6,1);
+     lcd.print("c  H: "); 
+     lcd.setCursor(11,1);
+    lcd.print(hum2);
+    lcd.setCursor(15,1);
+     lcd.print("% ");
+     delay(90);
+     }
+     //ifurile TOATE;
+
+if(temp1>=28){//racire
+      lcd.clear();
+    
+     while(temp1>=24){//inside
+      chk = DHT.read22(DHT11_PIN);
+    hum2 = DHT.humidity;
+    temp2= DHT.temperature;
+    int chk = DHT.read22(DHT22_PIN);
+    //Read data and store   it to variables hum and temp
+    hum1 = DHT.humidity;
+    temp1= DHT.temperature;
+    
+      if(temp1<=24){
+        lcd.clear();
+        break;
+      }
+      digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+        lcd.setCursor(1,0);
+      lcd.println("   COOLING!        ");
+      lcd.setCursor(4,1);
+     lcd.print("T: "); 
+     lcd.setCursor(6,1);
+    lcd.print(temp2);
+    lcd.print("c ");
+      //verific si valoarea gazelor
+
+digitalWrite(f1, HIGH);
+digitalWrite(f3, HIGH); 
+     }
+     //lcd.clear();
+     }
+
+
+
+     
+     if(temp1<=20){//incalzire
+      lcd.clear();
+    
+     while(temp1<=24){//inside
+      chk = DHT.read22(DHT11_PIN);
+    hum2 = DHT.humidity;
+    temp2= DHT.temperature;
+    int chk = DHT.read22(DHT22_PIN);
+    //Read data and store   it to variables hum and temp
+    hum1 = DHT.humidity;
+    temp1= DHT.temperature;
+    
+      if(temp1>=24){
+        lcd.clear();
+        break;
+      }
+      digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+        lcd.setCursor(1,0);
+      lcd.println("   HEATING!        ");
+      lcd.setCursor(4,1);
+     lcd.print("T: "); 
+     lcd.setCursor(6,1);
+    lcd.print(temp2);
+    lcd.print("c ");
+      //verific si valoarea gazelor
+
+digitalWrite(f2, HIGH);
+digitalWrite(f4, HIGH); 
+     }
+     //lcd.clear();
+     }
+     if(1){
+
+     
+
+
+     
+     
+
+
+
+if(hum1>=75){//hum
+      lcd.clear();
+     while(hum1>=70){
+      chk = DHT.read22(DHT22_PIN);
+      hum1=DHT.humidity;
+      //lcd.clear();
+      lcd.setCursor(1,0);
+      lcd.println("Humidity=");
+      lcd.setCursor(10,0);
+      lcd.println(hum1);
+      lcd.setCursor(14,0);
+      lcd.println("%      ");
+      lcd.setCursor(0,1);
+      lcd.println("!ROOM TOO HUMID! ");
+      //if(temp2<temp1&&temp1-temp2>=2){//dt>=2
+      if(temp1-temp2>=4){//cald2 aprinde r1 si r2 temp 1 afara
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+
+        digitalWrite(f2, HIGH);//recircula aeru pe partea calda
+        digitalWrite(f4, HIGH);//intra aer pe partea calda
+      }
+      if(temp1-temp2>=2){//cald1 aprinde r1
+        digitalWrite(r1, HIGH);
+digitalWrite(r2, LOW);
+        digitalWrite(f2, HIGH);//recircula aeru pe partea calda
+        digitalWrite(f4, HIGH);//intra aer pe partea calda
+      }
+      if(temp1>temp2){
+        dt=temp1-temp2;
+      }else{
+        dt=temp2-temp1;
+      }
+        if(dt<2){//neutru
+        digitalWrite(f1, HIGH);//opreste recircularea f3
+        digitalWrite(f3, HIGH);//opreste recircularea f3
+        digitalWrite(f4, HIGH);//opreste recircularea f4
+        digitalWrite(f2, LOW);
+        digitalWrite(r1, LOW);//opreste recircularea f3
+        digitalWrite(r2, LOW);//opreste recircularea f4
+      }
+      //if(temp2>temp1&&temp2-temp1>=2){
+      if(temp2-temp1>=3){//rec2 aprinde r1 r2
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+        
+        digitalWrite(f1, HIGH);//recircula aeru pe partea rece
+        digitalWrite(f3, HIGH);//intra aer pe partea rece
+      }
+      if(temp2-temp1>=2){//rec1 parinde r1
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, LOW);
+        digitalWrite(f1, HIGH);//recircula aeru pe partea rece
+        digitalWrite(f3, HIGH);//intra aer pe partea rece
+      }
+      //}
+      //delay (500);
+      //i++;
+      //}
+     }
+     }
+
+
+
+double mq4_value = analogToPPM(analogRead(mq4));
+
+  if(mq4_value>=2){//gass mq4
+      lcd.clear();
+     while(mq4_value>=1.8){
+      double mq4_value = analogToPPM(analogRead(mq4));
+      //lcd.clear();
+      lcd.setCursor(2,0);
+      //digitalWrite(A, LOW);
+      lcd.println("SMOKE=   ");
+      lcd.setCursor(9,0);
+      lcd.println(mq4_value);
+      lcd.setCursor(13,0);
+      lcd.println("%      ");
+      lcd.setCursor(0,1);
+      lcd.println("!POISONOUS  GAS! ");
+      
+      //if(temp2<temp1&&temp1-temp2>=2){//dt>=2
+      if(temp1-temp2>=4){//cald2 aprinde r1 si r2 temp 1 afara
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+
+        digitalWrite(f2, HIGH);//recircula aeru pe partea calda
+        digitalWrite(f4, HIGH);//intra aer pe partea calda
+      }
+      if(temp1-temp2>=2){//cald1 aprinde r1
+        digitalWrite(r1, HIGH);
+      digitalWrite(r2, LOW);
+        digitalWrite(f2, HIGH);//recircula aeru pe partea calda
+        digitalWrite(f4, HIGH);//intra aer pe partea calda
+      }
+      if(temp1>temp2){
+        dt=temp1-temp2;
+      }else{
+        dt=temp2-temp1;
+      }
+        if(dt<2){//neutru
+        digitalWrite(f1, HIGH);//opreste recircularea f3
+        digitalWrite(f3, HIGH);//opreste recircularea f3
+        digitalWrite(f4, HIGH);//opreste recircularea f4
+        digitalWrite(f2, LOW);
+        digitalWrite(r1, LOW);//opreste recircularea f3
+        digitalWrite(r2, LOW);//opreste recircularea f4
+      }
+      //if(temp2>temp1&&temp2-temp1>=2){
+      if(temp2-temp1>=3){//rec2 aprinde r1 r2
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, HIGH);
+        
+        digitalWrite(f1, HIGH);//recircula aeru pe partea rece
+        digitalWrite(f3, HIGH);//intra aer pe partea rece
+      }
+      if(temp2-temp1>=2){//rec1 parinde r1
+        digitalWrite(r1, HIGH);
+        digitalWrite(r2, LOW);
+        digitalWrite(f1, HIGH);//recircula aeru pe partea rece
+        digitalWrite(f3, HIGH);//intra aer pe partea rece
+      }
+      delay (500);
+      if(mq4_value<1.8){
+        lcd.clear();
+        break;
+      }
+      //}
+      //delay (500);
+      //i++;
+      //}
+     }
+     }
+
+
+
+      digitalWrite(f2, LOW);
+      digitalWrite(f1, LOW);
+     digitalWrite(f3, LOW);//opreste recircularea f3
+     digitalWrite(f4, LOW);//opreste recircularea f4
+     digitalWrite(r1, LOW);//opreste peltier 1
+     digitalWrite(r2, LOW);//opreste peltier 2
+
+
+
+     
+     }
+     if(i>=50){
+      i=0;
+      lcd.clear();
+     }
+     i++;
+     digitalWrite(f2, LOW);
+     digitalWrite(f1, LOW);
+     digitalWrite(f3, LOW);//opreste recircularea f3
+     digitalWrite(f4, LOW);//opreste recircularea f4
+     digitalWrite(r1, LOW);//opreste peltier 1
+     digitalWrite(r2, LOW);//opreste peltier 2
+
+     delay(100);
+}
+double analogToPPM(int aValue) {
+  float sensor_volt;
+  float RS_gas; 
+  float ratio;
+  int sensorValue = aValue;
+
+  sensor_volt = sensorValue*(5.0/1023.0);  
+  RS_gas = ((5.0*10.0)/sensor_volt)-10.0; 
+  ratio = RS_gas/R0; 
+  double  ppm_log = (log10(ratio)-b)/m;
+  return ppm_log;
+}
